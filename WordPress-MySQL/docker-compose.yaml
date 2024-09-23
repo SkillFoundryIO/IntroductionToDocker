@@ -1,0 +1,35 @@
+services:
+  wordpress-db:
+    image: mysql:8.0
+    volumes:
+      - wordpress_db_data:/var/lib/mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    networks:
+      - wpsite
+
+  wordpress:
+    depends_on:
+      - wordpress-db
+    image: wordpress:6.6
+    ports:
+      - "${WORDPRESS_PORT}:80"
+    restart: always
+    environment:
+      WORDPRESS_DB_HOST: wordpress-db:3306
+      WORDPRESS_DB_USER: ${MYSQL_USER}
+      WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD}
+      WORDPRESS_DB_NAME: ${MYSQL_DATABASE}
+    networks:
+      - wpsite
+
+volumes:
+  wordpress_db_data:
+
+networks:
+  wpsite:
+    driver: bridge
